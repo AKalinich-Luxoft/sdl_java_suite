@@ -59,6 +59,9 @@ import java.util.Vector;
 
 public class SdlService extends Service {
 
+    public static final String KEY_TCP_PORT = "TCP_PORT";
+    public static final String KEY_TCP_IP = "TCP_IP";
+
     private static final String TAG = "SDL Service";
 
     private static final String APP_NAME = "Hello Sdl";
@@ -120,7 +123,11 @@ public class SdlService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        startProxy();
+        final String tcp_ip = intent.hasExtra(KEY_TCP_IP) ?
+                intent.getStringExtra(KEY_TCP_IP) : DEV_MACHINE_IP_ADDRESS;
+        final int tcp_port = intent.getIntExtra(KEY_TCP_PORT, TCP_PORT);
+
+        startProxy(tcp_ip, tcp_port);
         return START_STICKY;
     }
 
@@ -137,7 +144,7 @@ public class SdlService extends Service {
         super.onDestroy();
     }
 
-    private void startProxy() {
+    private void startProxy(String tcp_ip, int tcp_port) {
         // This logic is to select the correct transport and security levels defined in the selected build flavor
         // Build flavors are selected by the "build variants" tab typically located in the bottom left of Android Studio
         // Typically in your app, you will only set one of these.
@@ -161,7 +168,7 @@ public class SdlService extends Service {
                 }
                 transport = new MultiplexTransportConfig(this, APP_ID, securityLevel);
             } else if (BuildConfig.TRANSPORT.equals("TCP")) {
-                transport = new TCPTransportConfig(TCP_PORT, DEV_MACHINE_IP_ADDRESS, true);
+                transport = new TCPTransportConfig(tcp_port, tcp_ip, true);
             } else if (BuildConfig.TRANSPORT.equals("MULTI_HB")) {
                 MultiplexTransportConfig mtc = new MultiplexTransportConfig(this, APP_ID, MultiplexTransportConfig.FLAG_MULTI_SECURITY_OFF);
                 mtc.setRequiresHighBandwidth(true);

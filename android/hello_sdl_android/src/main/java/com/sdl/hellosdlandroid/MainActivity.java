@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -21,6 +23,13 @@ public class MainActivity extends AppCompatActivity {
                 stopService(proxyIntent);
             }
         });
+
+        final EditText editor_addr = findViewById(R.id.tcp_ip_address_value);
+        editor_addr.setText("127.0.0.1");
+
+        final EditText editor_port = findViewById(R.id.tcp_port_value);
+        editor_port.setText("12345");
+
         findViewById(R.id.start_service).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -29,6 +38,11 @@ public class MainActivity extends AppCompatActivity {
                     SdlReceiver.queryForConnectedService(MainActivity.this);
                 } else if (BuildConfig.TRANSPORT.equals("TCP")) {
                     Intent proxyIntent = new Intent(MainActivity.this, SdlService.class);
+
+                    proxyIntent.putExtra(SdlService.KEY_TCP_IP, editor_addr.getText().toString());
+                    proxyIntent.putExtra(SdlService.KEY_TCP_PORT,
+                            Integer.valueOf(editor_port.getText().toString()));
+
                     startService(proxyIntent);
                 }
             }
