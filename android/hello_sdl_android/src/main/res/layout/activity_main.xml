@@ -76,6 +76,7 @@
                 android:layout_width="wrap_content"
                 android:id="@+id/stop_service"
                 android:text="stop service"
+                android:enabled="false"
                 android:layout_height="wrap_content" />
 
         </LinearLayout>

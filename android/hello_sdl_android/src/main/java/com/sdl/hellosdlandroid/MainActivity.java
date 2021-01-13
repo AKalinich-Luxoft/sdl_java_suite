@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -16,13 +17,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        findViewById(R.id.stop_service).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent proxyIntent = new Intent(MainActivity.this, SdlService.class);
-                stopService(proxyIntent);
-            }
-        });
 
         final EditText editor_addr = findViewById(R.id.tcp_ip_address_value);
         editor_addr.setText("127.0.0.1");
@@ -30,7 +24,10 @@ public class MainActivity extends AppCompatActivity {
         final EditText editor_port = findViewById(R.id.tcp_port_value);
         editor_port.setText("12345");
 
-        findViewById(R.id.start_service).setOnClickListener(new View.OnClickListener() {
+        final Button startServiceButton = findViewById(R.id.start_service);
+        final Button stopServiceButton = findViewById(R.id.stop_service);
+
+        startServiceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //If we are connected to a module we want to start our SdlService
@@ -44,7 +41,21 @@ public class MainActivity extends AppCompatActivity {
                             Integer.valueOf(editor_port.getText().toString()));
 
                     startService(proxyIntent);
+
+                    stopServiceButton.setEnabled(true);
+                    startServiceButton.setEnabled(false);
                 }
+            }
+        });
+
+        stopServiceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent proxyIntent = new Intent(MainActivity.this, SdlService.class);
+                stopService(proxyIntent);
+
+                stopServiceButton.setEnabled(false);
+                startServiceButton.setEnabled(true);
             }
         });
     }

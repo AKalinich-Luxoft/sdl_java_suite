@@ -43,6 +43,12 @@
         <service
             android:name="com.sdl.hellosdlandroid.SdlService"
             android:foregroundServiceType="connectedDevice">
+            <meta-data
+                android:name="@string/sdl_router_service_version_name"
+                android:value="@integer/sdl_router_service_version_value" />
+            <meta-data
+                android:name="@string/sdl_oem_vehicle_type_filter_name"
+                android:resource="@xml/supported_vehicle_type" />
         </service>
         <service
             android:name=".SdlRouterService"
@@ -52,12 +58,6 @@
             <intent-filter>
                 <action android:name="com.smartdevicelink.router.service" />
             </intent-filter>
-            <meta-data
-                android:name="@string/sdl_router_service_version_name"
-                android:value="@integer/sdl_router_service_version_value" />
-            <meta-data
-                android:name="@string/sdl_oem_vehicle_type_filter_name"
-                android:resource="@xml/supported_vehicle_type" />
         </service>
 
         <receiver

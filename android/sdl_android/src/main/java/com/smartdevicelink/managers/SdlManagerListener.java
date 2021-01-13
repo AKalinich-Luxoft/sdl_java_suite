@@ -43,6 +43,11 @@ public interface SdlManagerListener extends BaseSdlManagerListener {
     void onStart();
 
     /**
+     * Called when a manager is going to stop
+     */
+    void onStop();
+
+    /**
      * Called when the manager is destroyed
      */
     void onDestroy();

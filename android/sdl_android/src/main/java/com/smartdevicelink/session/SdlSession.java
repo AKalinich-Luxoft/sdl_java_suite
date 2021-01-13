@@ -126,7 +126,6 @@ public class SdlSession extends BaseSdlSession {
             mediaStreamingStatus.clear();
         }
         super.shutdown(info);
-
     }
 
     /**

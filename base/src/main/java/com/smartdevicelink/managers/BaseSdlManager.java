@@ -31,8 +31,11 @@
  */
 package com.smartdevicelink.managers;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.XmlResourceParser;
 import android.os.Bundle;
@@ -49,6 +52,7 @@ import com.smartdevicelink.managers.lifecycle.LifecycleManager;
 import com.smartdevicelink.managers.lifecycle.SystemCapabilityManager;
 import com.smartdevicelink.managers.permission.PermissionManager;
 import com.smartdevicelink.managers.screen.ScreenManager;
+import com.smartdevicelink.protocol.ISdlServiceListener;
 import com.smartdevicelink.protocol.enums.FunctionID;
 import com.smartdevicelink.protocol.enums.SessionType;
 import com.smartdevicelink.proxy.RPCMessage;
@@ -82,6 +86,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.smartdevicelink.util.SdlAppInfo.deserializeVehicleMake;
@@ -140,12 +145,10 @@ abstract class BaseSdlManager {
 
         @Override
         public void onServiceStarted(SessionType sessionType) {
-
         }
 
         @Override
         public void onServiceEnded(SessionType sessionType) {
-
         }
 
         @Override
@@ -881,16 +884,18 @@ abstract class BaseSdlManager {
     public boolean onVehicleTypeReceived(@Nullable VehicleType type, @Nullable String systemSoftwareVersion, @Nullable String systemHardwareVersion) {
         try {
             Context context = ((SdlManager) BaseSdlManager.this).context;
-            ComponentName myService = new ComponentName(context, this.getClass());
+            ComponentName myService = new ComponentName(context, context.getClass());
             Bundle metaData = context.getPackageManager().getServiceInfo(myService, PackageManager.GET_META_DATA).metaData;
             XmlResourceParser parser = context.getResources().getXml(metaData.getInt(context.getResources().getString(R.string.sdl_oem_vehicle_type_filter_name)));
             List<VehicleType> vehicleMakes = deserializeVehicleMake(parser);
 
-            if (vehicleMakes.contains(type)) {
-                return true;
-            } else {
-                return false;
+            for (VehicleType i : vehicleMakes) {
+                if (i.getStore().values().containsAll(type.getStore().values())) {
+                    return true;
+                }
             }
+
+            return false;
         } catch (PackageManager.NameNotFoundException e) {
             return false;
         }

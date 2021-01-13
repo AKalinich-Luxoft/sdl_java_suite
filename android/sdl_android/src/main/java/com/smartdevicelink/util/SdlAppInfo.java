@@ -161,6 +161,10 @@ public class SdlAppInfo {
                         if (tagname.equalsIgnoreCase("vehicle-type")) {
                             // create a new instance of employee
                             vehicleMake = new VehicleType();
+                            vehicleMake.setMake(parser.getAttributeValue(null, "make"));
+                            vehicleMake.setModel(parser.getAttributeValue(null, "model"));
+                            vehicleMake.setModelYear(parser.getAttributeValue(null, "modelYear"));
+                            vehicleMake.setTrim(parser.getAttributeValue(null, "trim"));
                         }
                         break;
 
