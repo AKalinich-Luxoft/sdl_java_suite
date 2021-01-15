@@ -31,6 +31,9 @@
  */
 package com.smartdevicelink.protocol;
 
+import android.content.Context;
+import android.content.Intent;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
@@ -56,6 +59,8 @@ import com.smartdevicelink.transport.utl.TransportRecord;
 import com.smartdevicelink.util.BitConverter;
 import com.smartdevicelink.util.DebugTool;
 import com.smartdevicelink.util.Version;
+
+import org.json.JSONException;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -549,6 +554,14 @@ public class SdlProtocolBase {
 
     public void endSession(byte sessionID) {
         SdlPacket header = SdlPacketFactory.createEndSession(SessionType.RPC, sessionID, hashID, (byte) protocolVersion.getMajor(), hashID);
+
+        Context context = transportConfig.getContext();
+        if (context != null) {
+            Intent intent = new Intent("sdl.router.alarm");
+            intent.putExtra("message", "END_SERVICE\n" + header.toString());
+            context.sendBroadcast(intent);
+        }
+
         handlePacketToSend(header);
         synchronized (TRANSPORT_MANAGER_LOCK) {
             if (transportManager != null) {
@@ -713,8 +726,20 @@ public class SdlProtocolBase {
             if (connectedPrimaryTransport != null) {
                 header.setTransportRecord(connectedPrimaryTransport);
             }
-            //This is going to be our primary transport
-            header.putTag(ControlFrameTags.RPC.StartService.PROTOCOL_VERSION, MAX_PROTOCOL_VERSION.toString());
+
+            Version currentVersion = transportConfig.getVersion() != null ? transportConfig.getVersion() : MAX_PROTOCOL_VERSION;
+            if (currentVersion.getMajor() >= 5) {
+                //This is going to be our primary transport
+                header.putTag(ControlFrameTags.RPC.StartService.PROTOCOL_VERSION, MAX_PROTOCOL_VERSION.toString());
+            }
+
+            Context context = transportConfig.getContext();
+            if (context != null) {
+                Intent intent = new Intent("sdl.router.alarm");
+                intent.putExtra("message", "START_SERVICE\n" + header.toString());
+                context.sendBroadcast(intent);
+            }
+
             handlePacketToSend(header);
             return; // We don't need to go any further
         } else if (serviceType.equals(SessionType.NAV)) {
@@ -905,6 +930,13 @@ public class SdlProtocolBase {
 
     //FIXME do we do anything in this class for this?
     protected void handleServiceEnded(SdlPacket packet, SessionType sessionType) {
+        Context context = transportConfig.getContext();
+        if (context != null) {
+            Intent intent = new Intent("sdl.router.alarm");
+            intent.putExtra("message", "END_SERVICE\n" + packet.toString());
+            context.sendBroadcast(intent);
+        }
+
         iSdlProtocol.onServiceEnded(packet, sessionType, packet.getSessionId());
     }
 
@@ -917,6 +949,14 @@ public class SdlProtocolBase {
      * @param serviceType the service type that has just been started
      */
     protected void handleStartServiceACK(SdlPacket packet, SessionType serviceType) {
+
+        Context context = transportConfig.getContext();
+        if (context != null) {
+            Intent intent = new Intent("sdl.router.alarm");
+            intent.putExtra("message", "START_SERVICE_ACK\n" + packet.toString());
+            context.sendBroadcast(intent);
+        }
+
         // Use this sessionID to create a message lock
         Object messageLock = _messageLocks.get((byte) packet.getSessionId());
         if (messageLock == null) {
@@ -950,6 +990,11 @@ public class SdlProtocolBase {
                 type.setModelYear(modelYear);
                 type.setTrim(vehicleTrim);
                 if (!iSdlProtocol.onVehicleTypeReceived(type, softwareVersion, hardwareVersion)) {
+                    if (context != null) {
+                        Intent intent = new Intent("sdl.router.proxy.not.supported");
+                        intent.putExtra("message", "Vehicle \"" + type.toString() + "\" is not supported by this app!");
+                        context.sendBroadcast(intent);
+                    }
                     onTransportNotAccepted("Rejected by the vehicle type filter");
                     return;
                 }
@@ -1112,6 +1157,14 @@ public class SdlProtocolBase {
 
     protected void handleProtocolSessionNAKed(SdlPacket packet, SessionType serviceType) {
         String error = "Service start NAK received for service type " + serviceType.getName();
+
+        Context context = transportConfig.getContext();
+        if (context != null) {
+            Intent intent = new Intent("sdl.router.alarm");
+            intent.putExtra("message", "START_SERVICE_NACK\n" + packet.toString());
+            context.sendBroadcast(intent);
+        }
+
         List<String> rejectedParams;
         if (packet.version >= 5) {
             if (DebugTool.isDebugEnabled()) {

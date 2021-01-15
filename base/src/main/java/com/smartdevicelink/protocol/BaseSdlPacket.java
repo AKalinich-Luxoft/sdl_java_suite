@@ -37,6 +37,7 @@ import com.smartdevicelink.transport.utl.TransportRecord;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class is only intended to be parcelable from the transport broker to the SDL Router Service.
@@ -349,8 +350,26 @@ class BaseSdlPacket {
         if (version > 1) {
             builder.append("\nMessageId:  ").append(messageId);
         }
-        builder.append("\n***** Sdl Packet  End******");
 
+        if (payload != null || bsonPayload != null) {
+            HashMap<String, Object> tmpMap = bsonPayload;
+            if (tmpMap == null) {
+                tmpMap = BsonEncoder.decodeFromBytes(payload);
+            }
+
+            if (tmpMap != null && !tmpMap.isEmpty()) {
+                builder.append("\n*** BSON PART ***");
+                for (Map.Entry<String,Object> entry : tmpMap.entrySet()) {
+                    builder.append("\n\t")
+                            .append(entry.getKey())
+                            .append(": ")
+                            .append(entry.getValue().toString());
+                }
+                builder.append("\n*** BSON PART END ***");
+            }
+        }
+
+        builder.append("\n***** Sdl Packet  End******");
 
         return builder.toString();
     }

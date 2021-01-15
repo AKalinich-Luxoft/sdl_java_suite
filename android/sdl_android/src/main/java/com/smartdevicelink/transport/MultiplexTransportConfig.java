@@ -67,7 +67,6 @@ public class MultiplexTransportConfig extends BaseTransportConfig {
      */
     public static final int FLAG_MULTI_SECURITY_HIGH = 0x30;
 
-    final Context context;
     final String appId;
     ComponentName service;
     int securityLevel;
@@ -79,20 +78,20 @@ public class MultiplexTransportConfig extends BaseTransportConfig {
 
 
     public MultiplexTransportConfig(Context context, String appId) {
-        this.context = context;
         this.appId = appId;
         this.securityLevel = FLAG_MULTI_SECURITY_MED;
         this.primaryTransports = Arrays.asList(TransportType.USB, TransportType.BLUETOOTH);
         this.secondaryTransports = Arrays.asList(TransportType.TCP, TransportType.USB, TransportType.BLUETOOTH);
+        setContext(context);
 
     }
 
     public MultiplexTransportConfig(Context context, String appId, int securityLevel) {
-        this.context = context;
         this.appId = appId;
         this.securityLevel = securityLevel;
         this.primaryTransports = Arrays.asList(TransportType.USB, TransportType.BLUETOOTH);
         this.secondaryTransports = Arrays.asList(TransportType.TCP, TransportType.USB, TransportType.BLUETOOTH);
+        setContext(context);
     }
 
     /**
@@ -103,15 +102,6 @@ public class MultiplexTransportConfig extends BaseTransportConfig {
      */
     public TransportType getTransportType() {
         return TransportType.MULTIPLEX;
-    }
-
-    /**
-     * Gets the context attached to this config
-     *
-     * @return context supplied during creation
-     */
-    public Context getContext() {
-        return this.context;
     }
 
     /**

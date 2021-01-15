@@ -31,13 +31,20 @@
  */
 package com.smartdevicelink.transport;
 
+import android.content.Context;
+
 import com.smartdevicelink.transport.enums.TransportType;
+import com.smartdevicelink.util.Version;
 
 /**
  * Defines base abstract class for transport configurations.
  */
 public abstract class BaseTransportConfig {
     protected int iHeartBeatTimeout = Integer.MAX_VALUE;
+
+    protected Context mContext;
+
+    protected Version mVersion;
 
     /**
      * Gets transport type for this transport configuration.
@@ -53,4 +60,12 @@ public abstract class BaseTransportConfig {
     public void setHeartBeatTimeout(int iTimeout) {
         iHeartBeatTimeout = iTimeout;
     }
+
+    public Context getContext() { return mContext; }
+
+    public void setContext(Context context) { mContext = context; }
+
+    public Version getVersion() { return mVersion; }
+
+    public void setVersion(Version version) { mVersion = version; }
 }

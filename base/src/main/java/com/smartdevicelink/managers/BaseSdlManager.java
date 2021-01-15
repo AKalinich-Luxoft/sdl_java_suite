@@ -31,11 +31,8 @@
  */
 package com.smartdevicelink.managers;
 
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.XmlResourceParser;
 import android.os.Bundle;
@@ -52,7 +49,6 @@ import com.smartdevicelink.managers.lifecycle.LifecycleManager;
 import com.smartdevicelink.managers.lifecycle.SystemCapabilityManager;
 import com.smartdevicelink.managers.permission.PermissionManager;
 import com.smartdevicelink.managers.screen.ScreenManager;
-import com.smartdevicelink.protocol.ISdlServiceListener;
 import com.smartdevicelink.protocol.enums.FunctionID;
 import com.smartdevicelink.protocol.enums.SessionType;
 import com.smartdevicelink.proxy.RPCMessage;
@@ -86,7 +82,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Vector;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.smartdevicelink.util.SdlAppInfo.deserializeVehicleMake;
@@ -189,6 +184,8 @@ abstract class BaseSdlManager {
     abstract void initialize();
 
     public abstract void dispose();
+
+    public abstract Context getInternalContext();
 
     protected void checkLifecycleConfiguration() {
         final Language actualLanguage = this.getRegisterAppInterfaceResponse().getLanguage();

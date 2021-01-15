@@ -31,6 +31,8 @@
  */
 package com.smartdevicelink.proxy.rpc;
 
+import androidx.annotation.NonNull;
+
 import com.smartdevicelink.proxy.RPCStruct;
 
 import java.util.Hashtable;
@@ -184,5 +186,11 @@ public class VehicleType extends RPCStruct {
     public VehicleType setTrim(String trim) {
         setValue(KEY_TRIM, trim);
         return this;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return getMake() + " " + getModel() + " " + getModelYear() + " " + getTrim();
     }
 }

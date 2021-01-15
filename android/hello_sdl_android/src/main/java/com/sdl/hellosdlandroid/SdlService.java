@@ -59,6 +59,7 @@ import com.smartdevicelink.transport.MultiplexTransportConfig;
 import com.smartdevicelink.transport.SdlBroadcastReceiver;
 import com.smartdevicelink.transport.TCPTransportConfig;
 import com.smartdevicelink.util.DebugTool;
+import com.smartdevicelink.util.Version;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,6 +71,7 @@ public class SdlService extends Service {
 
     public static final String KEY_TCP_PORT = "TCP_PORT";
     public static final String KEY_TCP_IP = "TCP_IP";
+    public static final String KEY_PROTOCOL_VERSION = "PROTOCOL_VERSION";
 
     private static final String TAG = "SDL Service";
 
@@ -135,8 +137,10 @@ public class SdlService extends Service {
         final String tcp_ip = intent.hasExtra(KEY_TCP_IP) ?
                 intent.getStringExtra(KEY_TCP_IP) : DEV_MACHINE_IP_ADDRESS;
         final int tcp_port = intent.getIntExtra(KEY_TCP_PORT, TCP_PORT);
+        final String version = intent.hasExtra(KEY_PROTOCOL_VERSION) ?
+                intent.getStringExtra(KEY_PROTOCOL_VERSION) : null;
 
-        startProxy(tcp_ip, tcp_port);
+        startProxy(tcp_ip, tcp_port, version);
         return START_STICKY;
     }
 
@@ -153,7 +157,7 @@ public class SdlService extends Service {
         super.onDestroy();
     }
 
-    private void startProxy(String tcp_ip, int tcp_port) {
+    private void startProxy(String tcp_ip, int tcp_port, String version) {
         // This logic is to select the correct transport and security levels defined in the selected build flavor
         // Build flavors are selected by the "build variants" tab typically located in the bottom left of Android Studio
         // Typically in your app, you will only set one of these.
@@ -178,10 +182,15 @@ public class SdlService extends Service {
                 transport = new MultiplexTransportConfig(this, APP_ID, securityLevel);
             } else if (BuildConfig.TRANSPORT.equals("TCP")) {
                 transport = new TCPTransportConfig(tcp_port, tcp_ip, true);
+                transport.setContext(this);
             } else if (BuildConfig.TRANSPORT.equals("MULTI_HB")) {
                 MultiplexTransportConfig mtc = new MultiplexTransportConfig(this, APP_ID, MultiplexTransportConfig.FLAG_MULTI_SECURITY_OFF);
                 mtc.setRequiresHighBandwidth(true);
                 transport = mtc;
+            }
+
+            if (version != null) {
+                transport.setVersion(new Version(version));
             }
 
             // The app type to be used

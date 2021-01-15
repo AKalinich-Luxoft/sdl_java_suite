@@ -83,7 +83,7 @@ public class TransportManager extends TransportManagerBase {
             config.service = SdlBroadcastReceiver.consumeQueuedRouterService();
         }
 
-        contextWeakReference = new WeakReference<>(config.context);
+        contextWeakReference = new WeakReference<>(config.getContext());
     }
 
     /**

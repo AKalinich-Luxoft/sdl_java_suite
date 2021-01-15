@@ -34,6 +34,7 @@ package com.smartdevicelink.managers;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -117,6 +118,9 @@ public class SdlManager extends BaseSdlManager {
 
             lifecycleManager.setContext(context);
             lifecycleManager.start();
+
+            Intent intent = new Intent("sdl.router.proxy.started");
+            context.sendBroadcast(intent);
         }
     }
 
@@ -208,6 +212,11 @@ public class SdlManager extends BaseSdlManager {
         }
     }
 
+    @Override
+    public Context getInternalContext() {
+        return context;
+    }
+
     /**
      * Dispose SdlManager and clean its resources
      * <strong>Note: new instance of SdlManager should be created on every connection. SdlManager cannot be reused after getting disposed.</strong>
@@ -242,6 +251,10 @@ public class SdlManager extends BaseSdlManager {
 
         if (this.lifecycleManager != null) {
             this.lifecycleManager.stop();
+            this.lifecycleManager = null;
+
+            Intent intent = new Intent("sdl.router.proxy.stopped");
+            context.sendBroadcast(intent);
         }
 
         if (managerListener != null) {

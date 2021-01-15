@@ -74,6 +74,10 @@ public class SdlSession extends BaseSdlSession {
 
     public SdlSession(ISdlSessionListener listener, TCPTransportConfig config) {
         super(listener, config);
+        if (config != null) {
+            contextWeakReference = new WeakReference<>(config.getContext());
+        }
+
         this.sessionListener = listener;
     }
 

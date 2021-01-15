@@ -104,6 +104,15 @@ public class LifecycleManager extends BaseLifecycleManager {
     }
 
     @Override
+    protected Context getInternalContext() {
+        if (this.contextWeakReference != null) {
+            return contextWeakReference.get();
+        }
+
+        return null;
+    }
+
+    @Override
     void setSdlSecurityStaticVars() {
         super.setSdlSecurityStaticVars();
 

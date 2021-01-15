@@ -142,7 +142,7 @@ public class RouterServiceValidator {
     }
 
     public RouterServiceValidator(@NonNull MultiplexTransportConfig config) {
-        this.context = config.context;
+        this.context = config.getContext();
         this.service = config.service;
         setSecurityLevel(config.securityLevel);
         inDebugMode = inDebugMode();

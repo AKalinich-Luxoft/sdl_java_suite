@@ -31,6 +31,8 @@
  */
 package com.smartdevicelink.transport;
 
+import android.content.Context;
+
 import com.smartdevicelink.transport.enums.TransportType;
 
 /**

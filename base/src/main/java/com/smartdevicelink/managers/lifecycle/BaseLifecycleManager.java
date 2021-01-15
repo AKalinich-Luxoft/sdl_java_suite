@@ -32,6 +32,9 @@
 
 package com.smartdevicelink.managers.lifecycle;
 
+import android.content.Context;
+import android.content.Intent;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -90,6 +93,8 @@ import com.smartdevicelink.util.DebugTool;
 import com.smartdevicelink.util.FileUtls;
 import com.smartdevicelink.util.Log;
 import com.smartdevicelink.util.Version;
+
+import org.json.JSONException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -366,6 +371,18 @@ abstract class BaseLifecycleManager {
                         DebugTool.logInfo(TAG, "RAI Response");
                         raiResponse = (RegisterAppInterfaceResponse) message;
                         SdlMsgVersion rpcVersion = ((RegisterAppInterfaceResponse) message).getSdlMsgVersion();
+
+                        Context context = getInternalContext();
+                        if (context != null) {
+                            Intent intent = new Intent("sdl.router.alarm");
+                            try {
+                                intent.putExtra("message", "RAI response message: " + raiResponse.serializeJSON().toString());
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            context.sendBroadcast(intent);
+                        }
+
                         if (rpcVersion != null) {
                             BaseLifecycleManager.this.rpcSpecVersion = new Version(rpcVersion.getMajorVersion(), rpcVersion.getMinorVersion(), rpcVersion.getPatchVersion());
                         } else {
@@ -375,6 +392,17 @@ abstract class BaseLifecycleManager {
                             DebugTool.logWarning(TAG, String.format("Disconnecting from head unit, the configured minimum RPC version %s is greater than the supported RPC version %s", minimumRPCVersion, rpcSpecVersion));
                             UnregisterAppInterface msg = new UnregisterAppInterface();
                             msg.setCorrelationID(UNREGISTER_APP_INTERFACE_CORRELATION_ID);
+
+                            if (context != null) {
+                                Intent intent = new Intent("sdl.router.alarm");
+                                try {
+                                    intent.putExtra("message", "Unregister request message: " + msg.serializeJSON().toString());
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                context.sendBroadcast(intent);
+                            }
+
                             sendRPCMessagePrivate(msg, true);
                             clean();
                             return;
@@ -387,7 +415,23 @@ abstract class BaseLifecycleManager {
                         VehicleType type = raiResponse.getVehicleType();
                         if (!lifecycleListener.onVehicleTypeReceived(type, null, null)){
                             DebugTool.logInfo(TAG, "vehicle type is wrong");
+                            if (context != null) {
+                                Intent intent = new Intent("sdl.router.proxy.not.supported");
+                                intent.putExtra("message", "Vehicle \"" + type.toString() + "\" is not supported by this app!");
+                                context.sendBroadcast(intent);
+                            }
                             session.close();
+                            break;
+                        }
+
+                        if (raiResponse.getResultCode() == Result.SUCCESS ||
+                                raiResponse.getResultCode() == Result.WARNINGS ||
+                                raiResponse.getResultCode() == Result.RESUME_FAILED) {
+                            if (context != null) {
+                                Intent intent = new Intent("sdl.router.proxy.connected");
+                                intent.putExtra("message", "Mobile app has been successfully connected!");
+                                context.sendBroadcast(intent);
+                            }
                         }
 
                         break;
@@ -395,6 +439,18 @@ abstract class BaseLifecycleManager {
                         DebugTool.logInfo(TAG, "on hmi status");
                         boolean shouldInit = currentHMIStatus == null;
                         currentHMIStatus = (OnHMIStatus) message;
+
+                        Context context_status = getInternalContext();
+                        if (context_status != null) {
+                            Intent intent = new Intent("sdl.router.alarm");
+                            try {
+                                intent.putExtra("message", "OnHmiStatus notification: " + currentHMIStatus.serializeJSON().toString());
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            context_status.sendBroadcast(intent);
+                        }
+
                         if (lifecycleListener != null && shouldInit) {
                             lifecycleListener.onConnected((LifecycleManager) BaseLifecycleManager.this);
                         }
@@ -462,6 +518,17 @@ abstract class BaseLifecycleManager {
 
                         OnAppInterfaceUnregistered onAppInterfaceUnregistered = (OnAppInterfaceUnregistered) message;
 
+                        Context context_unreg = getInternalContext();
+                        if (context_unreg != null) {
+                            Intent intent = new Intent("sdl.router.alarm");
+                            try {
+                                intent.putExtra("message", "OnAppInterface notification: " + onAppInterfaceUnregistered.serializeJSON().toString());
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            context_unreg.sendBroadcast(intent);
+                        }
+
                         if (!onAppInterfaceUnregistered.getReason().equals(AppInterfaceUnregisteredReason.LANGUAGE_CHANGE)) {
                             DebugTool.logInfo(TAG, "on app interface unregistered");
                             clean();
@@ -472,6 +539,17 @@ abstract class BaseLifecycleManager {
                         break;
                     case UNREGISTER_APP_INTERFACE:
                         DebugTool.logInfo(TAG, "unregister app interface");
+                        Context context_unreg_app_int = getInternalContext();
+                        if (context_unreg_app_int != null) {
+                            Intent intent = new Intent("sdl.router.alarm");
+                            try {
+                                intent.putExtra("message", "UnregisterApp response message: " + message.serializeJSON().toString());
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            context_unreg_app_int.sendBroadcast(intent);
+                        }
+
                         clean();
                         break;
                 }
@@ -918,6 +996,16 @@ abstract class BaseLifecycleManager {
                 rai.setHashID(appConfig.getResumeHash());
 
                 //Add device/system info in the future
+                Context context = getInternalContext();
+                if (context != null) {
+                    Intent intent = new Intent("sdl.router.alarm");
+                    try {
+                        intent.putExtra("message", "RAI request message: " + rai.serializeJSON().toString());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    context.sendBroadcast(intent);
+                }
 
                 sendRPCMessagePrivate(rai, true);
             } else {
@@ -1222,6 +1310,10 @@ abstract class BaseLifecycleManager {
 
 
     abstract void cycle(SdlDisconnectedReason disconnectedReason);
+
+    protected Context getInternalContext() {
+        return null;
+    }
 
     void onTransportDisconnected(String info, boolean availablePrimary, BaseTransportConfig transportConfig) {
     }
