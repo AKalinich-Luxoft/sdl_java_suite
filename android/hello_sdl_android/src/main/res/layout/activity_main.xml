@@ -84,8 +84,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            >
+            android:gravity="center"
+            android:layout_marginTop="@dimen/activity_vertical_margin">
 
             <Button
                 android:layout_below="@+id/stop_service"
@@ -104,7 +104,7 @@
             <Button
                 android:layout_width="wrap_content"
                 android:id="@+id/clear_console"
-                android:text="Clear Console"
+                android:text="Clear"
                 android:layout_height="wrap_content" />
 
         </LinearLayout>

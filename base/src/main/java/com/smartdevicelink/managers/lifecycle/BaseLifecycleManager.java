@@ -420,7 +420,20 @@ abstract class BaseLifecycleManager {
                                 intent.putExtra("message", "Vehicle \"" + type.toString() + "\" is not supported by this app!");
                                 context.sendBroadcast(intent);
                             }
-                            session.close();
+
+                            UnregisterAppInterface msg = new UnregisterAppInterface();
+                            msg.setCorrelationID(UNREGISTER_APP_INTERFACE_CORRELATION_ID);
+                            if (context != null) {
+                                Intent intent = new Intent("sdl.router.alarm");
+                                try {
+                                    intent.putExtra("message", "UnregisterAppInterface request message: " + msg.serializeJSON().toString());
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                context.sendBroadcast(intent);
+                            }
+
+                            sendRPCMessagePrivate(msg, true);
                             break;
                         }
 
@@ -543,7 +556,7 @@ abstract class BaseLifecycleManager {
                         if (context_unreg_app_int != null) {
                             Intent intent = new Intent("sdl.router.alarm");
                             try {
-                                intent.putExtra("message", "UnregisterApp response message: " + message.serializeJSON().toString());
+                                intent.putExtra("message", "UnregisterAppInterface response message: " + message.serializeJSON().toString());
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -1236,6 +1249,7 @@ abstract class BaseLifecycleManager {
         }
         if (session != null && session.getIsConnected()) {
             session.close();
+            session = null;
         }
         if (encryptionLifecycleManager != null) {
             encryptionLifecycleManager.dispose();

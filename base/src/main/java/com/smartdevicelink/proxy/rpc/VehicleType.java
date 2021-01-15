@@ -191,6 +191,26 @@ public class VehicleType extends RPCStruct {
     @NonNull
     @Override
     public String toString() {
-        return getMake() + " " + getModel() + " " + getModelYear() + " " + getTrim();
+        StringBuilder builder = new StringBuilder();
+        if (getMake() != null) {
+            builder.append(getMake());
+        }
+
+        if (getModel() != null) {
+            if (!builder.toString().isEmpty()) builder.append(" ");
+            builder.append(getModel());
+        }
+
+        if (getModelYear() != null) {
+            if (!builder.toString().isEmpty()) builder.append(" ");
+            builder.append(getModelYear());
+        }
+
+        if (getTrim() != null) {
+            if (!builder.toString().isEmpty()) builder.append(" ");
+            builder.append(getTrim());
+        }
+
+        return builder.toString();
     }
 }

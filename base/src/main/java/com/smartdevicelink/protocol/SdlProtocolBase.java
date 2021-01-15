@@ -933,7 +933,7 @@ public class SdlProtocolBase {
         Context context = transportConfig.getContext();
         if (context != null) {
             Intent intent = new Intent("sdl.router.alarm");
-            intent.putExtra("message", "END_SERVICE\n" + packet.toString());
+            intent.putExtra("message", "END_SERVICE_ACK\n" + packet.toString());
             context.sendBroadcast(intent);
         }
 
