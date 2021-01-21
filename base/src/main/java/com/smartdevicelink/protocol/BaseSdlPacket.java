@@ -362,8 +362,9 @@ class BaseSdlPacket {
                 for (Map.Entry<String,Object> entry : tmpMap.entrySet()) {
                     builder.append("\n\t")
                             .append(entry.getKey())
-                            .append(": ")
-                            .append(entry.getValue().toString());
+                            .append(": \"")
+                            .append(entry.getValue().toString())
+                            .append("\"");
                 }
                 builder.append("\n*** BSON PART END ***");
             }
