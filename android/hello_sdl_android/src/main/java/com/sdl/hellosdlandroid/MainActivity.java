@@ -150,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
         editor_port.setText("12345");
 
         final EditText editor_version = findViewById(R.id.protocol_version);
-        editor_version.setText("5.3.0");
+        editor_version.setText("5.4.0");
 
         startServiceButton = findViewById(R.id.start_service);
         stopServiceButton = findViewById(R.id.stop_service);
