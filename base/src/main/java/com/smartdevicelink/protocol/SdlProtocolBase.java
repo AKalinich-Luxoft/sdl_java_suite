@@ -730,7 +730,7 @@ public class SdlProtocolBase {
             Version currentVersion = transportConfig.getVersion() != null ? transportConfig.getVersion() : MAX_PROTOCOL_VERSION;
             if (currentVersion.getMajor() >= 5) {
                 //This is going to be our primary transport
-                header.putTag(ControlFrameTags.RPC.StartService.PROTOCOL_VERSION, MAX_PROTOCOL_VERSION.toString());
+                header.putTag(ControlFrameTags.RPC.StartService.PROTOCOL_VERSION, currentVersion.toString());
             }
 
             Context context = transportConfig.getContext();
